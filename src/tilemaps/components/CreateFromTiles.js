@@ -4,8 +4,7 @@
  * @license      {@link https://opensource.org/licenses/MIT|MIT License}
  */
 
-var TileToWorldX = require('./TileToWorldX');
-var TileToWorldY = require('./TileToWorldY');
+
 var GetTilesWithin = require('./GetTilesWithin');
 var ReplaceByIndex = require('./ReplaceByIndex');
 
@@ -48,9 +47,9 @@ var CreateFromTiles = function (indexes, replacements, spriteConfig, scene, came
 
         if (indexes.indexOf(tile.index) !== -1)
         {
-            spriteConfig.x = TileToWorldX(tile.x, camera, layer);
-            spriteConfig.y = TileToWorldY(tile.y, camera, layer);
-
+            var point = tilemapLayer.tileToWorldXY(tile.x,tile.y, undefined, camera);
+            spriteConfig.x = point.x;
+            spriteConfig.y = point.y;
             var sprite = scene.make.sprite(spriteConfig);
             sprites.push(sprite);
         }

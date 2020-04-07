@@ -4,6 +4,8 @@
  * @license      {@link https://opensource.org/licenses/MIT|MIT License}
  */
 
+var CONST = require('../../const.js');
+
 /**
  * Renders this Game Object with the Canvas Renderer to the given Camera.
  * The object will not render if any of its renderFlags are set or it is being actively filtered out by the Camera.
@@ -25,7 +27,6 @@ var DynamicTilemapLayerCanvasRenderer = function (renderer, src, interpolationPe
 
     var renderTiles = src.culledTiles;
     var tileCount = renderTiles.length;
-
     if (tileCount === 0)
     {
         return;
@@ -75,8 +76,8 @@ var DynamicTilemapLayerCanvasRenderer = function (renderer, src, interpolationPe
 
     for (var i = 0; i < tileCount; i++)
     {
-        var tile = renderTiles[i];
 
+        var tile = renderTiles[i];
         var tileset = gidMap[tile.index];
 
         if (!tileset)
@@ -85,12 +86,23 @@ var DynamicTilemapLayerCanvasRenderer = function (renderer, src, interpolationPe
         }
 
         var image = tileset.image.getSourceImage();
-        var tileTexCoords = tileset.getTileTextureCoordinates(tile.index);
 
+        var tileTexCoords = tileset.getTileTextureCoordinates(tile.index);
+  
         if (tileTexCoords)
         {
-            var halfWidth = tile.width / 2;
-            var halfHeight = tile.height / 2;
+            var width = tile.width;
+            var height = tile.width;
+
+            if (src.layer.orientation === CONST.ISOMETRIC || src.layer.orientation === CONST.STAGGERED || src.layer.orientation === CONST.HEXAGONAL)
+            {
+                // we use the tileset width and height because in isometric and hexagonal maps the tileset's height is often different from the tilemap's.
+                width = tileset.tileWidth;
+                height = tileset.tileHeight;
+            }
+
+            var halfWidth = width / 2;
+            var halfHeight = height / 2;
     
             ctx.save();
 
@@ -107,17 +119,18 @@ var DynamicTilemapLayerCanvasRenderer = function (renderer, src, interpolationPe
             }
     
             ctx.globalAlpha = alpha * tile.alpha;
-    
+
             ctx.drawImage(
                 image,
                 tileTexCoords.x, tileTexCoords.y,
-                tile.width, tile.height,
+                tileset.tileWidth, tileset.tileHeight,
                 -halfWidth, -halfHeight,
-                tile.width, tile.height
+                width, height
             );
     
             ctx.restore();
         }
+
     }
 
     ctx.restore();

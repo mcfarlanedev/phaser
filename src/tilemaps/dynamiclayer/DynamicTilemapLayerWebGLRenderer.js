@@ -4,7 +4,9 @@
  * @license      {@link https://opensource.org/licenses/MIT|MIT License}
  */
 
+ 
 var Utils = require('../../renderer/webgl/Utils');
+var CONST = require('../../const.js');
 
 /**
  * Renders this Game Object with the WebGL Renderer to the given Camera.
@@ -75,14 +77,26 @@ var DynamicTilemapLayerWebGLRenderer = function (renderer, src, interpolationPer
                 continue;
             }
 
-            var frameWidth = tile.width;
-            var frameHeight = tile.height;
+            var frameWidth = 0;
+            var frameHeight = 0;
+
+            if (src.layer.orientation === CONST.ISOMETRIC || src.layer.orientation === CONST.STAGGERED || src.layer.orientation === CONST.HEXAGONAL)
+            {
+                // we use the tileset width and height because in isometric maps the tileset's height is often different from the tilemap's.
+                frameWidth = tileset.tileWidth;
+                frameHeight = tileset.tileHeight;
+            }
+            else
+            {
+                frameWidth = tile.width;
+                frameHeight = tile.height;
+            }
 
             var frameX = tileTexCoords.x;
             var frameY = tileTexCoords.y;
 
-            var tw = tile.width * 0.5;
-            var th = tile.height * 0.5;
+            var tw = frameWidth * 0.5;
+            var th = frameHeight * 0.5;
 
             var tint = getTint(tile.tint, alpha * tile.alpha);
 
@@ -91,7 +105,7 @@ var DynamicTilemapLayerWebGLRenderer = function (renderer, src, interpolationPer
                 texture,
                 texture.width, texture.height,
                 x + ((tw + tile.pixelX) * sx), y + ((th + tile.pixelY) * sy),
-                tile.width, tile.height,
+                frameWidth, frameHeight,
                 sx, sy,
                 tile.rotation,
                 tile.flipX, tile.flipY,
